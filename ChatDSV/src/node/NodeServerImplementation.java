@@ -33,7 +33,6 @@ public class NodeServerImplementation implements NodeServer {
 	
 	public List<InetSocketAddress> getNodes() {
 		return nodes;
-
 	}
 
 	@Override

@@ -276,28 +276,28 @@ public class Node {
 			List<InetSocketAddress> visitedNodes = new ArrayList<InetSocketAddress>();
 			visitedNodes.add(socket);
 			InetSocketAddress firstAddress = new InetSocketAddress(host, port);
+			joinToNode(logicTimeOfJoin, firstAddress);
 			nodeServer.addNode(logicTimeOfJoin, firstAddress);
-			visitedNodes.add(firstAddress);
-
-
-			List<InetSocketAddress> nodeServerNodesBackup;
-			while ( visitedNodes.containsAll(nodeServer.getNodes()) )
-			{
-				nodeServerNodesBackup = new ArrayList<InetSocketAddress>(nodeServer.getNodes());
-				for( InetSocketAddress address : nodeServerNodesBackup )
-				{
-					if (!visitedNodes.contains(address))
-					{
-						visitedNodes.add(address);
-						try {
-							nodeServer.addNode(logicTimeOfJoin, address);
-							joinToNode(logicTimeOfJoin, address);
-						} catch (RemoteException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
+//			visitedNodes.add(firstAddress);
+//
+//			List<InetSocketAddress> nodeServerNodesBackup;
+//			while ( visitedNodes.containsAll(nodeServer.getNodes()) )
+//			{
+//				nodeServerNodesBackup = new ArrayList<InetSocketAddress>(nodeServer.getNodes());
+//				for( InetSocketAddress address : nodeServerNodesBackup )
+//				{
+//					if (!visitedNodes.contains(address))
+//					{
+//						visitedNodes.add(address);
+//						try {
+//							nodeServer.addNode(logicTimeOfJoin, address);
+//							joinToNode(logicTimeOfJoin, address);
+//						} catch (RemoteException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//				}
+//			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -322,7 +322,7 @@ public class Node {
 			// zaregistrovani jmena u objektu 
 			Registry registry = LocateRegistry.createRegistry(2010);
 			registry.rebind(name, stub);
-			log.make("Created RMI Registry at " + socket.getHostName() + ":" + socket.getPort());
+			log.make("Created RMI Registry at " + socket.getAddress().getCanonicalHostName() + ":" + socket.getPort());
 		}
 		catch (Exception e) {
 			//neco je spatne :(
