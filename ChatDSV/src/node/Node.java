@@ -11,6 +11,7 @@ import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -81,6 +82,7 @@ public class Node {
 				String strLine;
 				// Read File Line By Line
 				while ((strLine = br.readLine()) != null) {
+					System.out.println(strLine);
 					parsingCommand(strLine);
 				}
 				in.close();
@@ -163,9 +165,7 @@ public class Node {
 		try {
 			int logicTimeOfRequest = nodeServer.getClock().event();
 
-
 			nodeServer.request(logicTimeOfRequest, socket);
-
 
 			// vsem uzlum posle REQUEST a rovnou prijima REPLY a aktualizuje si logicky cas
 			for ( InetSocketAddress address : nodeServer.getNodes() )
@@ -183,7 +183,7 @@ public class Node {
 			log.make("We are waiting for request on head of queue");
 			while(!nodeServer.isOurRequestOnHeadOfQueue());
 
-			// jsme v kriticke sekci, rozesleme nasi zpravu :-)
+			// jsme v kriticke sekci a muzeme rozeslat nasi zpravu
 			int logicTimeOfMessage = clock.event();
 			for ( InetSocketAddress address : nodeServer.getNodes() )
 			{
@@ -234,7 +234,7 @@ public class Node {
 				Registry registry = LocateRegistry.getRegistry(s.getAddress().getCanonicalHostName(), s.getPort());
 				NodeServer remoteNode = (NodeServer) registry.lookup(RMI_NAME);
 				remoteNode.logout(logicTimeOfLogout, socket);
-
+				log.make("Logging out from node "+s.getAddress().getCanonicalHostName()+":"+s.getPort(),logicTimeOfLogout);
 				i.remove();
 			}
 		}
@@ -262,7 +262,7 @@ public class Node {
 			// vyhledani vzdaleneho objektu
 			Registry registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
 			NodeServer remoteNode = (NodeServer) registry.lookup(RMI_NAME);
-			remoteNode.addNode(logicTimeOfJoin, socket);
+			nodeServer.addNodes(remoteNode.addNode(logicTimeOfJoin, socket));
 		}
 		catch (Exception e) {
 			System.err.println("joinToNode: " + e.getMessage());
@@ -273,31 +273,30 @@ public class Node {
 		int logicTimeOfJoin = clock.event();
 
 		try {
-			List<InetSocketAddress> visitedNodes = new ArrayList<InetSocketAddress>();
-			visitedNodes.add(socket);
+			List<InetSocketAddress> visitedNodes = new ArrayList<InetSocketAddress>(nodeServer.getNodes());
 			InetSocketAddress firstAddress = new InetSocketAddress(host, port);
 			joinToNode(logicTimeOfJoin, firstAddress);
 			nodeServer.addNode(logicTimeOfJoin, firstAddress);
-//			visitedNodes.add(firstAddress);
-//
-//			List<InetSocketAddress> nodeServerNodesBackup;
-//			while ( visitedNodes.containsAll(nodeServer.getNodes()) )
-//			{
-//				nodeServerNodesBackup = new ArrayList<InetSocketAddress>(nodeServer.getNodes());
-//				for( InetSocketAddress address : nodeServerNodesBackup )
-//				{
-//					if (!visitedNodes.contains(address))
-//					{
-//						visitedNodes.add(address);
-//						try {
-//							nodeServer.addNode(logicTimeOfJoin, address);
-//							joinToNode(logicTimeOfJoin, address);
-//						} catch (RemoteException e) {
-//							e.printStackTrace();
-//						}
-//					}
-//				}
-//			}
+			visitedNodes.add(firstAddress);
+
+			List<InetSocketAddress> nodeServerNodesBackup;
+			while ( !visitedNodes.containsAll(nodeServer.getNodes()) )
+			{
+				nodeServerNodesBackup = new ArrayList<InetSocketAddress>(nodeServer.getNodes());
+				for( InetSocketAddress address : nodeServerNodesBackup )
+				{
+					if (!visitedNodes.contains(address))
+					{
+						visitedNodes.add(address);
+						try {
+							nodeServer.addNode(logicTimeOfJoin, address);
+							joinToNode(logicTimeOfJoin, address);
+						} catch (RemoteException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
