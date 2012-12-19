@@ -9,7 +9,7 @@ import node.LamportsClock;
 
 public interface NodeServer extends Remote {
 	public List<InetSocketAddress> addNode(int timestamp, InetSocketAddress address) throws RemoteException;
-	public boolean testAlive() throws RemoteException;
+	public List<InetSocketAddress> testAlive(int timestamp, InetSocketAddress address) throws RemoteException;
 	public void message(String msg, int timestamp, InetSocketAddress address) throws RemoteException;
 	public int request(int timestamp, InetSocketAddress address) throws RemoteException;
 	public void release(int timestamp, InetSocketAddress address, int timestampOfRequestAskey) throws RemoteException;
@@ -19,4 +19,5 @@ public interface NodeServer extends Remote {
 	public List<InetSocketAddress> getNodes() throws RemoteException;
 	public LamportsClock getClock() throws RemoteException;
 	public boolean isOurRequestOnHeadOfQueue() throws RemoteException;
+	public void removeNode(InetSocketAddress address) throws RemoteException;
 }

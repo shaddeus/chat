@@ -239,33 +239,14 @@ public class Node {
 		}
 		catch (Exception e) {
 			System.err.println("logout: " + e.getMessage());
-		}		
-//		for ( InetSocketAddress address : nodeServer.getNodes() )
-//		{
-//			if ( address.equals(nodeServer.getOwnAddress()) )
-//				continue;
-//			
-//			try {
-//				Registry registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
-//				NodeServer remoteNode = (NodeServer) registry.lookup(RMI_NAME);
-//				remoteNode.logout(nodeServer.getClock().event(),nodeServer.getOwnAddress());
-//			}
-//			catch (Exception e) {
-//				System.err.println("logout: " + e.getMessage());
-//			}			
-//		}
+		}
 	}
 
-	private static void joinToNode(int logicTimeOfJoin, InetSocketAddress address) {
-		try {
-			// vyhledani vzdaleneho objektu
-			Registry registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
-			NodeServer remoteNode = (NodeServer) registry.lookup(RMI_NAME);
-			nodeServer.addNodes(remoteNode.addNode(logicTimeOfJoin, socket));
-		}
-		catch (Exception e) {
-			System.err.println("joinToNode: " + e.getMessage());
-		}
+	private static void joinToNode(int logicTimeOfJoin, InetSocketAddress address) throws RemoteException, NotBoundException {
+		// vyhledani vzdaleneho objektu
+		Registry registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
+		NodeServer remoteNode = (NodeServer) registry.lookup(RMI_NAME);
+		nodeServer.addNodes(remoteNode.addNode(logicTimeOfJoin, socket));
 	}
 
 	private static void joinToNetwork(String host, Integer port) {
@@ -296,7 +277,7 @@ public class Node {
 					}
 				}
 			}
-		} catch (RemoteException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -310,11 +291,11 @@ public class Node {
 	{
 		// jmeno nasi sluzby
 		String name = "ChatDSV";
-		NodeServer nodeServer;
 		
+		nodeServer = new NodeServerImplementation(port, clock, log, socket);
+
 		try {
 			// vytvoreni samotneho objektu a jeho stubu
-			nodeServer = new NodeServerImplementation(port, clock, log, socket);
 			NodeServer stub = (NodeServer) UnicastRemoteObject.exportObject(nodeServer, 50000);
 
 			// zaregistrovani jmena u objektu 
@@ -328,6 +309,10 @@ public class Node {
 			e.getStackTrace();
 			return null;
 		}
+		
+		Thread testAliveNodesThread = new TestAliveNodesThread("TestAliveNodesThread", log, clock, nodeServer, socket, RMI_NAME);
+		testAliveNodesThread.start();
+		
 		return nodeServer;
 	}
 }

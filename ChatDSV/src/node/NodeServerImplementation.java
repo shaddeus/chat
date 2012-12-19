@@ -47,8 +47,9 @@ public class NodeServerImplementation implements NodeServer {
 	}
 
 	@Override
-	public boolean testAlive() throws RemoteException {
-		return true;
+	public List<InetSocketAddress> testAlive(int timestamp, InetSocketAddress address) throws RemoteException {
+		log.make("is testing me alive", clock.event(timestamp), address);
+		return this.nodes;
 	}
 
 	@Override
@@ -112,6 +113,11 @@ public class NodeServerImplementation implements NodeServer {
 			break;
 		}
 		return false;
+	}
+
+	@Override
+	public void removeNode(InetSocketAddress address) throws RemoteException {
+		nodes.remove(address);
 	}
 
 }
