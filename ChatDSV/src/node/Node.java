@@ -127,7 +127,7 @@ public class Node {
 			else if (parts[0].contentEquals("join"))
 			{
 				subparts = parts[1].split(" ");
-				if (subparts.length >= 1)
+				if (subparts.length >= 2)
 					joinToNetwork(subparts[0], Integer.parseInt(subparts[1]));
 				else
 					joinToNetwork(subparts[0]);
