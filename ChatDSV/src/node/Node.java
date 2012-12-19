@@ -11,7 +11,6 @@ import java.rmi.RMISecurityManager;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -207,7 +206,7 @@ public class Node {
 
 				Registry registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
 				NodeServer remoteNode = (NodeServer) registry.lookup(RMI_NAME);
-				remoteNode.release(logicTimeOfRelease, socket);
+				remoteNode.release(logicTimeOfRelease, socket, logicTimeOfRequest);
 				log.make("We are sending a release to node " + address.getAddress().getCanonicalHostName(), logicTimeOfRelease);
 			}
 

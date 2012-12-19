@@ -12,7 +12,7 @@ public interface NodeServer extends Remote {
 	public boolean testAlive() throws RemoteException;
 	public void message(String msg, int timestamp, InetSocketAddress address) throws RemoteException;
 	public int request(int timestamp, InetSocketAddress address) throws RemoteException;
-	public void release(int timestamp, InetSocketAddress address) throws RemoteException;
+	public void release(int timestamp, InetSocketAddress address, int timestampOfRequestAskey) throws RemoteException;
 	public void logout(int timestamp, InetSocketAddress address) throws RemoteException;
 	
 	public void addNodes(List<InetSocketAddress> addNode) throws RemoteException;

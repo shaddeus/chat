@@ -4,8 +4,10 @@ import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import communicate.NodeServer;
 import node.LamportsClock;
@@ -62,15 +64,22 @@ public class NodeServerImplementation implements NodeServer {
 		return logicTimeOfRequest;
 	}
 
-//	@Override
-//	public int reply(int timestamp, InetSocketAddress address) throws RemoteException {
-//		// TODO Auto-generated method stub
-//		return 0;
-//	}
-
 	@Override
-	public void release(int timestamp, InetSocketAddress address) throws RemoteException {
-		requests.remove(address);
+	public void release(int timestamp, InetSocketAddress address, int timestampOfRequestAskey) throws RemoteException {
+		//		requests.remove(timestampOfRequestAskey);
+
+		Iterator<Entry<Integer, InetSocketAddress>> entries = requests.entrySet().iterator();
+		while (entries.hasNext()) {
+			Map.Entry<Integer, InetSocketAddress> entry = (Map.Entry<Integer, InetSocketAddress>) entries.next();
+			//			    Integer key = (Integer)entry.getKey();
+			//			    InetSocketAddress value = (InetSocketAddress)entry.getValue();
+			//			    System.out.println("Key = " + key + ", Value = " + value);
+			if (address.equals((InetSocketAddress)entry.getValue()))
+			{
+				entries.remove();
+				break;
+			}
+		}
 		log.make("is sending release", clock.event(timestamp), address);
 	}
 
