@@ -48,7 +48,7 @@ public class NodeServerImplementation implements NodeServer {
 
 	@Override
 	public List<InetSocketAddress> testAlive(int timestamp, InetSocketAddress address) throws RemoteException {
-		log.make("is testing me alive", clock.event(timestamp), address);
+//		log.make("is testing me alive", clock.event(timestamp), address);
 		return this.nodes;
 	}
 

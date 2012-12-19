@@ -1,8 +1,6 @@
 package node;
 
 import java.net.InetSocketAddress;
-import java.rmi.AccessException;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -37,24 +35,27 @@ public class TestAliveNodesThread extends Thread {
 			List<InetSocketAddress> remoteNodesListNodes = new ArrayList<InetSocketAddress>();
 
 			try {
-				for (InetSocketAddress address : nodeServer.getNodes())
+				synchronized(nodeServer)
 				{
-					if (address.equals(socket))
-						continue;
+					for (InetSocketAddress address : nodeServer.getNodes())
+					{
+						if (address.equals(socket))
+							continue;
 
-					int logicTimeOfTestAlive = clock.event();
-					Registry registry;
-					NodeServer remoteNode;
-					try {
-						registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
-						remoteNode = (NodeServer) registry.lookup(RMI_NAME);
-						remoteNodesListNodes.addAll(remoteNode.testAlive(logicTimeOfTestAlive, socket));
-					} catch (Exception e1) {
-						// neco je spatne
-						// nelze navazat spojeni se vzdalenym RMI serverem, tudiz uzel asi spadl/...
-						nodeServer.removeNode(address);
-						log.make("Keep Alive Test detect dead node " + address.getAddress().getCanonicalHostName() + ":" + address.getPort());
-						continue;
+						int logicTimeOfTestAlive = clock.event();
+						Registry registry;
+						NodeServer remoteNode;
+						try {
+							registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
+							remoteNode = (NodeServer) registry.lookup(RMI_NAME);
+							remoteNodesListNodes.addAll(remoteNode.testAlive(logicTimeOfTestAlive, socket));
+						} catch (Exception e) {
+							// neco je spatne
+							// nelze navazat spojeni se vzdalenym RMI serverem, tudiz uzel asi spadl/...
+							nodeServer.removeNode(address);
+							log.make("Keep Alive Test detect dead node " + address.getAddress().getCanonicalHostName() + ":" + address.getPort());
+							continue;
+						}
 					}
 				}
 			} catch (Exception e) {
