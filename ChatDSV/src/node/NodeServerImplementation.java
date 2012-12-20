@@ -2,12 +2,12 @@ package node;
 
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import communicate.NodeServer;
 import node.LamportsClock;
@@ -15,7 +15,7 @@ import node.LamportsClock;
 public class NodeServerImplementation implements NodeServer {
 
 	private LamportsClock clock;
-	private List<InetSocketAddress> nodes;
+	private CopyOnWriteArrayList<InetSocketAddress> nodes;
 	private Map<Integer, InetSocketAddress> requests;
 	private InetSocketAddress ownAddress;
 	private Log log;
@@ -27,7 +27,7 @@ public class NodeServerImplementation implements NodeServer {
 		super();
 		this.clock = clock;
 		this.log = log;
-		this.nodes = new ArrayList<InetSocketAddress>();
+		this.nodes = new CopyOnWriteArrayList<InetSocketAddress>();
 		this.requests = new HashMap<Integer, InetSocketAddress>();
 		this.ownAddress = socket;
 		this.nodes.add(this.ownAddress);
@@ -86,7 +86,10 @@ public class NodeServerImplementation implements NodeServer {
 
 	@Override
 	public void logout(int timestamp, InetSocketAddress address) throws RemoteException {
-		nodes.remove(address);
+		synchronized(nodes)
+		{
+			nodes.remove(address);
+		}
 		log.make("is logouting", clock.event(timestamp), address);
 	}
 
@@ -117,7 +120,6 @@ public class NodeServerImplementation implements NodeServer {
 
 	@Override
 	public void removeNode(InetSocketAddress address) throws RemoteException {
-		nodes.remove(address);
+			nodes.remove(address);
 	}
-
 }

@@ -35,27 +35,24 @@ public class TestAliveNodesThread extends Thread {
 			List<InetSocketAddress> remoteNodesListNodes = new ArrayList<InetSocketAddress>();
 
 			try {
-				synchronized(nodeServer)
+				for (InetSocketAddress address : nodeServer.getNodes())
 				{
-					for (InetSocketAddress address : nodeServer.getNodes())
-					{
-						if (address.equals(socket))
-							continue;
+					if (address.equals(socket))
+						continue;
 
-						int logicTimeOfTestAlive = clock.event();
-						Registry registry;
-						NodeServer remoteNode;
-						try {
-							registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
-							remoteNode = (NodeServer) registry.lookup(RMI_NAME);
-							remoteNodesListNodes.addAll(remoteNode.testAlive(logicTimeOfTestAlive, socket));
-						} catch (Exception e) {
-							// neco je spatne
-							// nelze navazat spojeni se vzdalenym RMI serverem, tudiz uzel asi spadl/...
-							nodeServer.removeNode(address);
-							log.make("Keep Alive Test detect dead node " + address.getAddress().getCanonicalHostName() + ":" + address.getPort());
-							continue;
-						}
+					int logicTimeOfTestAlive = clock.event();
+					Registry registry;
+					NodeServer remoteNode;
+					try {
+						registry = LocateRegistry.getRegistry(address.getAddress().getCanonicalHostName(), address.getPort());
+						remoteNode = (NodeServer) registry.lookup(RMI_NAME);
+						remoteNodesListNodes.addAll(remoteNode.testAlive(logicTimeOfTestAlive, socket));
+					} catch (Exception e) {
+						// neco je spatne
+						// nelze navazat spojeni se vzdalenym RMI serverem, tudiz uzel asi spadl/...
+						nodeServer.removeNode(address);
+						log.make("Keep Alive Test detect dead node " + address.getAddress().getCanonicalHostName() + ":" + address.getPort());
+						continue;
 					}
 				}
 			} catch (Exception e) {
