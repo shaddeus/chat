@@ -232,9 +232,10 @@ public class Node {
 
 				Registry registry = LocateRegistry.getRegistry(s.getAddress().getCanonicalHostName(), s.getPort());
 				NodeServer remoteNode = (NodeServer) registry.lookup(RMI_NAME);
-				remoteNode.logout(logicTimeOfLogout, socket);
 				log.make("Logging out from node "+s.getAddress().getCanonicalHostName()+":"+s.getPort(),logicTimeOfLogout);
-				i.remove();
+				remoteNode.logout(logicTimeOfLogout, socket);
+				nodeServer.removeNode(s);
+//				i.remove();
 			}
 		}
 		catch (Exception e) {
