@@ -72,7 +72,7 @@ public class Node {
 		if (args.length > 0)
 		{
 			String confFilePath = args[0];
-			System.out.println("Loading configuration file: " + confFilePath + "\n");
+			System.out.println("Loading configuration file: " + confFilePath);
 
 			try {
 				FileInputStream fstream = new FileInputStream(confFilePath);
