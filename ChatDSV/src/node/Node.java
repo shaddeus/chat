@@ -239,6 +239,7 @@ public class Node {
 		}
 		catch (Exception e) {
 			System.err.println("logout: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -253,7 +254,7 @@ public class Node {
 		int logicTimeOfJoin = clock.event();
 
 		try {
-			List<InetSocketAddress> visitedNodes = new ArrayList<InetSocketAddress>(nodeServer.getNodes());
+			ArrayList<InetSocketAddress> visitedNodes = new ArrayList<InetSocketAddress>(nodeServer.getNodes());
 			InetSocketAddress firstAddress = new InetSocketAddress(host, port);
 			joinToNode(logicTimeOfJoin, firstAddress);
 			nodeServer.addNode(logicTimeOfJoin, firstAddress);

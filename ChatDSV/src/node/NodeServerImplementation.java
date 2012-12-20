@@ -33,7 +33,7 @@ public class NodeServerImplementation implements NodeServer {
 		this.nodes.add(this.ownAddress);
 	}
 	
-	public List<InetSocketAddress> getNodes() {
+	public CopyOnWriteArrayList<InetSocketAddress> getNodes() {
 		return nodes;
 	}
 

@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import node.LamportsClock;
 
@@ -16,7 +17,7 @@ public interface NodeServer extends Remote {
 	public void logout(int timestamp, InetSocketAddress address) throws RemoteException;
 	
 	public void addNodes(List<InetSocketAddress> addNode) throws RemoteException;
-	public List<InetSocketAddress> getNodes() throws RemoteException;
+	public CopyOnWriteArrayList<InetSocketAddress> getNodes() throws RemoteException;
 	public LamportsClock getClock() throws RemoteException;
 	public boolean isOurRequestOnHeadOfQueue() throws RemoteException;
 	public void removeNode(InetSocketAddress address) throws RemoteException;
